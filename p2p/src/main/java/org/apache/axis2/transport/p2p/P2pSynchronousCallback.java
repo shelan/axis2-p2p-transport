@@ -1,0 +1,122 @@
+/*
+ * * Licensed to the Apache Software Foundation (ASF) under one
+ *  * or more contributor license agreements. See the NOTICE file
+ *  * distributed with this work for additional information
+ *  * regarding copyright ownership. The ASF licenses this file
+ *  * to you under the Apache License, Version 2.0 (the
+ *  * "License"); you may not use this file except in compliance
+ *  * with the License. You may obtain a copy of the License at
+ *  *
+ *  * http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing,
+ *  * software distributed under the License is distributed on an
+ *  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  * KIND, either express or implied. See the License for the
+ *  * specific language governing permissions and limitations
+ *  * under the License.
+ */
+
+package org.apache.axis2.transport.p2p;
+
+import org.apache.axis2.AxisFault;
+import org.apache.axis2.context.MessageContext;
+import org.apache.axis2.context.OperationContext;
+import org.apache.axis2.description.AxisMessage;
+import org.apache.axis2.description.AxisOperation;
+import org.apache.axis2.wsdl.WSDLConstants;
+
+/**
+ * Created by IntelliJ IDEA.
+ * User: shelan
+ * Date: 25 Jul, 2010
+ * Time: 7:57:59 PM
+ * To change this template use File | Settings | File Templates.
+ */
+public class P2pSynchronousCallback {
+
+
+    private MessageContext outMessageContext;
+    private MessageContext inMessageContext;
+
+    private boolean isComplete;
+
+    public P2pSynchronousCallback(MessageContext outMessageContext) {
+
+        this.outMessageContext = outMessageContext;
+        this.isComplete = false;
+    }
+
+    public synchronized void setInMessageContext(MessageContext inMessageContext) throws AxisFault {
+
+        // if some other thread has access and complete then return without doing any thing.
+        // thread should have activate by the first message.
+        if (!isComplete) {
+            // this code is invoked only if the code use with axis2 at the client side
+            // when axis2 client receive messages it waits in the sending thread until the response comes.
+            // so this thread only notify the waiting thread and hence we need to build the message here.
+            inMessageContext.getEnvelope().build();
+            OperationContext operationContext = outMessageContext.getOperationContext();
+            MessageContext msgCtx =
+                    operationContext.getMessageContext(WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+
+            if (msgCtx == null) {
+                // try to see whether there is a piggy back message context
+                if (outMessageContext.getProperty(org.apache.axis2.Constants.PIGGYBACK_MESSAGE) != null) {
+
+                    msgCtx = (MessageContext) outMessageContext.getProperty(org.apache.axis2.Constants.PIGGYBACK_MESSAGE);
+                    msgCtx.setTransportIn(inMessageContext.getTransportIn());
+                    msgCtx.setTransportOut(inMessageContext.getTransportOut());
+                    msgCtx.setServerSide(false);
+                    msgCtx.setProperty(P2pConstants.P2P_DEFAULT_CONTENT_TYPE,
+                            inMessageContext.getProperty(P2pConstants.P2P_DEFAULT_CONTENT_TYPE));
+
+                    msgCtx.setIncomingTransportName(P2pConstants.TRANSPORT_P2P);
+                    msgCtx.setEnvelope(inMessageContext.getEnvelope());
+
+                } else {
+                    inMessageContext.setOperationContext(operationContext);
+                    inMessageContext.setServiceContext(outMessageContext.getServiceContext());
+                    if (!operationContext.isComplete()) {
+                        operationContext.addMessageContext(inMessageContext);
+                    }
+                    AxisOperation axisOp = operationContext.getAxisOperation();
+                    AxisMessage inMessage = axisOp.getMessage(WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                    inMessageContext.setAxisMessage(inMessage);
+                    inMessageContext.setServerSide(false);
+                }
+
+            } else {
+                msgCtx.setOperationContext(operationContext);
+                msgCtx.setServiceContext(outMessageContext.getServiceContext());
+                AxisOperation axisOp = operationContext.getAxisOperation();
+                AxisMessage inMessage = axisOp.getMessage(WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                msgCtx.setAxisMessage(inMessage);
+                msgCtx.setTransportIn(inMessageContext.getTransportIn());
+                msgCtx.setTransportOut(inMessageContext.getTransportOut());
+                msgCtx.setServerSide(false);
+                msgCtx.setProperty(P2pConstants.P2P_DEFAULT_CONTENT_TYPE,
+                        inMessageContext.getProperty(P2pConstants.P2P_DEFAULT_CONTENT_TYPE));
+              
+                msgCtx.setIncomingTransportName(P2pConstants.TRANSPORT_P2P);
+                msgCtx.setEnvelope(inMessageContext.getEnvelope());
+
+            }
+            this.inMessageContext = inMessageContext;
+            isComplete = true;
+            this.notifyAll();
+        }
+
+    }
+
+
+    public boolean isComplete() {
+        return isComplete;
+    }
+
+    public void setComplete(boolean complete) {
+        isComplete = complete;
+    }
+
+
+}
