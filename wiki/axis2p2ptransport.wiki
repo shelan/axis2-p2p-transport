@@ -1,6 +1,4 @@
 #labels AXIS2,FreePastry,p2p,Apache,Transport
-#format wiki
-#language fr
 
 == Google Summer of Code 2010 Proposal ==
 
