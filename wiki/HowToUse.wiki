@@ -29,15 +29,22 @@ bootPort = boot port used in boot strapping server
 <transportSender name="p2p"
                      class="org.apache.axis2.transport.p2p.P2pSender"/>
 
- note:  you need to give the same port no for bootport and bindport if you are going to bootstrap using the server.
+
 }}}
 
+
+ note:  you need to give the same port no for bootport and bindport if you are going to bootstrap using the server.
+
+
 For other servers and clients you need not to give bind port unless you need to create a new ring.
+
 
  note  if you are using 10000 as the boot strap please do not use 10000+1 port since it will be used by Registry Application
 
 
+
 == Adding required jars to Axis2 server ==
+
 
 you need to add following jars to the AXIS2_HOME/lib folder
 
@@ -46,6 +53,8 @@ you need to add following jars to the AXIS2_HOME/lib folder
 * [http://www.jarvana.com/jarvana/archive-details/org/apache/axis2/axis2-transport-base/1.0.0/axis2-transport-base-1.0.0.jar axis2-transport-base-1.0.0.jar]
 
 and then start the server.
+
+
 
 
 == Using client to invoke the web service ==
