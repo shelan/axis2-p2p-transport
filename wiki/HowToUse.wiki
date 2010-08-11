@@ -25,11 +25,12 @@ bootPort = boot port used in boot strapping server
 
 == for transport receiver ==
 
+{{{
 <transportSender name="p2p"
                      class="org.apache.axis2.transport.p2p.P2pSender"/>
 
  note:  you need to give the same port no for bootport and bindport if you are going to bootstrap using the server.
-
+}}}
 
 For other servers and clients you need not to give bind port unless you need to create a new ring.
 
@@ -56,4 +57,3 @@ You have to add the AXIS2_HOME/lib folder to class path (Which includes freepast
 In the SAMPLE_CLIENT/conf folder has the axis2.xml including the required entries for
 
 TransportReciver and TransportSender
-
