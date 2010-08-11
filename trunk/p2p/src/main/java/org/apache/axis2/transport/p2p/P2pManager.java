@@ -88,7 +88,7 @@ public class P2pManager {
             endpoint.setNodeId(node.getNodeId());
 
             // to check if this is the bootstrap node
-            configurationContext.setProperty("axis2ServerApp", app);
+            configurationContext.setProperty(P2pConstants.PASTRY_SERVER_APP, app);
 
             configurationContext.setProperty(P2pConstants.PASTRY_NODE_STARTED, true);
 
@@ -134,7 +134,7 @@ public class P2pManager {
         if (env != null) {
             env.destroy();
 
-            if(registryApp != null){
+            if (registryApp != null) {
                 registryApp.cleanupRegistry();
             }
 
@@ -200,7 +200,7 @@ public class P2pManager {
 
         log.info("Finished creating new node " + node);
 
-        cfgCtx.setProperty("axis2ClientApp", app);
+        cfgCtx.setProperty(P2pConstants.PASTRY_SENDER_APP, app);
 
         cfgCtx.setProperty(P2pConstants.PASTRY_ENVIRONMENT, nodeUtils.getEnv());
 
@@ -211,7 +211,7 @@ public class P2pManager {
 
         registryApp = new RegistryApp(cfgCtx, bootIp, regBootPort);
 
-        cfgCtx.setProperty("registryApp", registryApp);
+        cfgCtx.setProperty(P2pConstants.PASTRY_REGISTRY_APP, registryApp);
 
 
         log.info("Application for the Sender started " + app.getEndpoint().getId());

@@ -1,20 +1,11 @@
 package org.apache.axis2.transport.p2p;
 
-import org.apache.axiom.soap.SOAPEnvelope;
-import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.context.MessageContext;
-import org.apache.axis2.description.AxisOperation;
-import org.apache.axis2.description.AxisService;
 import org.apache.axis2.engine.AxisEngine;
-import org.apache.axis2.transport.TransportUtils;
 import org.apache.axis2.transport.p2p.pastry.PastryMsg;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.xml.namespace.QName;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 
 
 /*
@@ -35,7 +26,7 @@ import java.io.InputStream;
  * specific language governing permissions and limitations
  * under the License.
  */
-public class P2pRecieveWorker implements Runnable {
+public class P2pReceiveWorker implements Runnable {
 
     private PastryMsg msg;
     private P2pEndpoint endpoint;
@@ -43,7 +34,7 @@ public class P2pRecieveWorker implements Runnable {
 
     private static final Log log = LogFactory.getLog(P2pManager.class);
 
-    public P2pRecieveWorker(P2pEndpoint endpoint, PastryMsg msg) {
+    public P2pReceiveWorker(P2pEndpoint endpoint, PastryMsg msg) {
 
         this.msg = msg;
         this.endpoint = endpoint;
@@ -72,7 +63,7 @@ public class P2pRecieveWorker implements Runnable {
 
 
         } catch (Exception e) {
-           log.error("Error while processing P2P request through the Axis2 engine", e);
+            log.error("Error while processing P2P request through the Axis2 engine", e);
         }
 
 

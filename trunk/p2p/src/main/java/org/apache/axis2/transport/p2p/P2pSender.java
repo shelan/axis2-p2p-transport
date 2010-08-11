@@ -48,7 +48,7 @@ public class P2pSender extends AbstractTransportSender {
 
     private boolean initialized = false;
 
-    ConfigurationContext cfgCtx;
+    ConfigurationContext configCtx;
 
     private PastryApp app;
 
@@ -73,21 +73,13 @@ public class P2pSender extends AbstractTransportSender {
             }
 
             if (app == null) {
-                app = (PastryApp) cfgCtx.getProperty("axis2ClientApp");
+                app = (PastryApp) configCtx.getProperty(P2pConstants.PASTRY_SENDER_APP);
             }
-
-            System.out.println("soap : " + soapEnv);
-
-            System.out.println("\nService name" + getServiceName(targetEpr));
-
-            System.out.println("Operation name  : " +
-                    this.getOperationFromSOAPHeader(soapEnv));
-
 
             String key = getServiceName(targetEpr) + ":" + getOperationFromSOAPHeader(soapEnv);
 
 
-            registryApp = (RegistryApp) cfgCtx.getProperty("registryApp");
+            registryApp = (RegistryApp) configCtx.getProperty(P2pConstants.PASTRY_REGISTRY_APP);
 
 
             Id availableServer = null;
@@ -102,12 +94,6 @@ public class P2pSender extends AbstractTransportSender {
 
             if (availableServer != null) {
                 app.sendMessage(availableServer, msg);
-
-                System.out.println("node id of to whom we are sending  : " + availableServer);
-
-                testNum++;
-
-                System.out.println("\nPrinting the no of message sent  :" + testNum);
 
 
                 if (!messageContext.getOptions().isUseSeparateListener() && !messageContext.isServerSide()) {
@@ -125,7 +111,7 @@ public class P2pSender extends AbstractTransportSender {
 
             ConfigurationContext configCtx = messageContext.getConfigurationContext();
 
-            PastryApp app = (PastryApp) configCtx.getProperty("axis2ServerApp");
+            PastryApp app = (PastryApp) configCtx.getProperty(P2pConstants.PASTRY_SERVER_APP);
 
             PastryMsg msg = new PastryMsg(messageContext.getEnvelope());
 
@@ -181,20 +167,20 @@ public class P2pSender extends AbstractTransportSender {
 
         try {
 
-            System.out.println("starting pastry app at client side in transport sender");
+            log.info("starting pastry app at client side in transport sender");
 
-            this.cfgCtx = messageContext.getConfigurationContext();
+            this.configCtx = messageContext.getConfigurationContext();
 
             // set the synchronise callback table
-            if (cfgCtx.getProperty(BaseConstants.CALLBACK_TABLE) == null) {
-                cfgCtx.setProperty(BaseConstants.CALLBACK_TABLE, new ConcurrentHashMap());
+            if (configCtx.getProperty(BaseConstants.CALLBACK_TABLE) == null) {
+                configCtx.setProperty(BaseConstants.CALLBACK_TABLE, new ConcurrentHashMap());
             }
 
             P2pManager manager = new P2pManager();
 
-            manager.initSenderNode(cfgCtx);
+            manager.initSenderNode(configCtx);
 
-            this.env = (Environment) cfgCtx.getProperty(P2pConstants.PASTRY_ENVIRONMENT);
+            this.env = (Environment) configCtx.getProperty(P2pConstants.PASTRY_ENVIRONMENT);
 
 
             setInitialized(true);
@@ -213,7 +199,7 @@ public class P2pSender extends AbstractTransportSender {
             env.destroy();
         }
 
-        if(registryApp != null){
+        if (registryApp != null) {
             registryApp.cleanupRegistry();
         }
     }
