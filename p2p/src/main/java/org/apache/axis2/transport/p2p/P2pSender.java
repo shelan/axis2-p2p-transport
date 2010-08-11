@@ -214,7 +214,7 @@ public class P2pSender extends AbstractTransportSender {
         while (iterator.hasNext()) {
 
             SOAPHeaderBlock blk = (SOAPHeaderBlock) iterator.next();
-            System.out.println("elements : " + blk.getText());
+            
             operation = blk.getText();
         }
 

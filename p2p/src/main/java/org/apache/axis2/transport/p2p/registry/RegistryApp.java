@@ -161,7 +161,7 @@ public class RegistryApp {
 
         final RegistryContent myContent = new RegistryContent(idf.buildId(operation), serverId);
 
-        System.out.println(" storing key for" + operation + "  :" + myContent.getId());
+       log.debug(" storing key for" + operation + "  :" + myContent.getId());
 
         pastApp.insert(myContent, new Continuation<Boolean[], Exception>() {
             // the result is an Array of Booleans for each insert
