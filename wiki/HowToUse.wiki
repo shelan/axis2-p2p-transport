@@ -65,5 +65,4 @@ You can use the client implementation of [http://axis2-p2p-transport.googlecode.
 You have to add the AXIS2_HOME/lib folder to class path (Which includes freepastry and transport-base jars as well)
 
 In the SAMPLE_CLIENT/conf folder has the axis2.xml including the required entries for
-
 TransportReciver and TransportSender
