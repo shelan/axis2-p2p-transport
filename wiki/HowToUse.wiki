@@ -9,25 +9,31 @@
 
  Free pastry should have a boot strap node to start a new ring.Therefore we need to choose one Axis2 server for that.For that server we need to give the following configurations in axis2.xml  (Found in conf folder)
 
+bootIp = Boot ip of the boot strapping Server
+
+bootPort = boot port used in boot strapping server
+
 == for transport sender ==
 
+{{{
 <transportReceiver name="p2p" class="org.apache.axis2.transport.p2p.P2pListner">
   <parameter name="transport.p2p.bootip" >127.0.0.1</parameter>
   <parameter name="transport.p2p.bootport">10000</parameter>
   <parameter name="transport.p2p.bindport">10000</parameter>
 </transportReceiver>
+}}}
 
 == for transport receiver ==
 
 <transportSender name="p2p"
                      class="org.apache.axis2.transport.p2p.P2pSender"/>
 
-==== note: ==== you need to give the same port no for bootport and bindport if you are going to bootstrap using the server.
+ note:  you need to give the same port no for bootport and bindport if you are going to bootstrap using the server.
 
 
 For other servers and clients you need not to give bind port unless you need to create a new ring.
 
-==== note ==== if you are using 10000 as the boot strap please do not use 10000+1 port since it will be used by Registry Application
+ note  if you are using 10000 as the boot strap please do not use 10000+1 port since it will be used by Registry Application
 
 
 == Adding required jars to Axis2 server ==
@@ -41,9 +47,13 @@ you need to add following jars to the AXIS2_HOME/lib folder
 and then start the server.
 
 
-= Details =
+== Using client to invoke the web service ==
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+You can use the client implementation of [http://axis2-p2p-transport.googlecode.com/files/axis2_client.zip SampleClient]
+
+You have to add the AXIS2_HOME/lib folder to class path (Which includes freepastry and transport-base jars as well)
+
+In the SAMPLE_CLIENT/conf folder has the axis2.xml including the required entries for
+
+TransportReciver and TransportSender
+
