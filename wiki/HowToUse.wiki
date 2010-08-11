@@ -1,0 +1,52 @@
+#summary How to use this in Axis2 transport
+
+== requirements ==
+
+* Apache Axis2 Server [1]
+* Apache WS-Commons Transport base jar [2]
+* Free Pastry [3]
+
+== Configurations ==
+
+ *Apache Axis2 Server*
+
+ Free pastry should have a boot strap node to start a new ring.Therefore we need to choose one Axis2 server for that.For that server we need to give the following configurations in axis2.xml  (Found in conf folder)
+
+*for transport sender*
+
+<transportReceiver name="p2p" class="org.apache.axis2.transport.p2p.P2pListner">
+  <parameter name="transport.p2p.bootip" >127.0.0.1</parameter>
+  <parameter name="transport.p2p.bootport">10000</parameter>
+  <parameter name="transport.p2p.bindport">10000</parameter>
+</transportReceiver>
+
+*for transport receiver*
+
+<transportSender name="p2p"
+                     class="org.apache.axis2.transport.p2p.P2pSender"/>
+
+ *Note:* you need to give the same port no for bootport and bindport if you are going to bootstrap using the server.
+
+
+For other servers and clients you need not to give bind port unless you need to create a new ring.
+
+*note* if you are using 10000 as the boot strap please do not use 10000+1 port since it will be used by Registry Application
+
+
+== Adding required jars to Axis2 server ==
+
+you need to add following jars to the AXIS2_HOME/lib folder
+
+[*http://www.freepastry.org/FreePastry/FreePastry-2.1.jar FreePastry-2.1.jar]
+
+[*http://www.jarvana.com/jarvana/archive-details/org/apache/axis2/axis2-transport-base/1.0.0/axis2-transport-base-1.0.0.jar axis2-transport-base-1.0.0.jar]
+
+and then start the server.
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
