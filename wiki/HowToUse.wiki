@@ -1,6 +1,5 @@
 #summary How to use this in Axis2 transport
 
-#sidebar TableOfContents
 
 
 == Configurations ==
