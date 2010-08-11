@@ -250,7 +250,6 @@ public class P2pManager {
 
                 regApp.insertIntoRegistry(key, serverId);
 
-                System.out.println();
 
                 log.debug("Inserted Service:Operation key :  " + key);
 
