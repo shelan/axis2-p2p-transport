@@ -26,13 +26,7 @@ import org.apache.axis2.description.AxisMessage;
 import org.apache.axis2.description.AxisOperation;
 import org.apache.axis2.wsdl.WSDLConstants;
 
-/**
- * Created by IntelliJ IDEA.
- * User: shelan
- * Date: 25 Jul, 2010
- * Time: 7:57:59 PM
- * To change this template use File | Settings | File Templates.
- */
+
 public class P2pSynchronousCallback {
 
 
@@ -97,7 +91,7 @@ public class P2pSynchronousCallback {
                 msgCtx.setServerSide(false);
                 msgCtx.setProperty(P2pConstants.P2P_DEFAULT_CONTENT_TYPE,
                         inMessageContext.getProperty(P2pConstants.P2P_DEFAULT_CONTENT_TYPE));
-              
+
                 msgCtx.setIncomingTransportName(P2pConstants.TRANSPORT_P2P);
                 msgCtx.setEnvelope(inMessageContext.getEnvelope());
 

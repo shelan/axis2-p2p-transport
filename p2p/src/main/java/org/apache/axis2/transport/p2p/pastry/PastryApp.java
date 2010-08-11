@@ -7,8 +7,10 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.base.BaseConstants;
 import org.apache.axis2.transport.base.threads.WorkerPool;
 import org.apache.axis2.transport.p2p.P2pEndpoint;
-import org.apache.axis2.transport.p2p.P2pRecieveWorker;
+import org.apache.axis2.transport.p2p.P2pReceiveWorker;
 import org.apache.axis2.transport.p2p.P2pSynchronousCallback;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import rice.p2p.commonapi.*;
 
 import java.util.Iterator;
@@ -49,6 +51,8 @@ public class PastryApp implements Application {
 
 
     private int testCtr = 0;
+
+    private static final Log log = LogFactory.getLog(PastryApp.class);
 
 
     public PastryApp(Node node, P2pEndpoint p2pEndpoint, WorkerPool workerpool) {
@@ -102,16 +106,16 @@ public class PastryApp implements Application {
 
         testCtr++;
 
-        // System.out.println("Recieved msg :"+testCtr+"    \n" + msg.getEnvelope());
+        log.debug("No of messages recived in the application" + endpoint.getId() + " : " + testCtr + "\n");
 
-        System.out.println("No of messages recived :" + testCtr + "\n");
-
+        // if this application is at Axis2 server side processing will be handed over to the server
         if (!isClient) {
 
-            System.out.println("processing add to server worker pool");
-            workerPool.execute(new P2pRecieveWorker(p2pEndpoint, msg));
-        } else {
+            log.debug("processing add to server worker pool");
 
+            workerPool.execute(new P2pReceiveWorker(p2pEndpoint, msg));
+
+        } else {
 
             try {
                 MessageContext msgContext = configCtx.createMessageContext();
@@ -121,13 +125,10 @@ public class PastryApp implements Application {
 
                 Iterator iterator = msg.getEnvelope().getHeader().getChildrenWithLocalName("RelatesTo");
 
-
                 String messageId = null;
 
                 while (iterator.hasNext()) {
-
                     SOAPHeaderBlock blk = (SOAPHeaderBlock) iterator.next();
-                    System.out.println("elements : " + blk.getText());
                     messageId = blk.getText();
                 }
 
@@ -140,7 +141,7 @@ public class PastryApp implements Application {
                     map.remove(messageId);
                 }
 
-                /** check how the incoming is handled at the client side   and remove this code
+                /** check how the incoming is handled at the client side   and remove this code.Is below part needed ?
                  else{
                  AxisEngine.receive(msgContext);
                  }
@@ -153,31 +154,29 @@ public class PastryApp implements Application {
 
         }
 
-
-        System.out.println("processed");
     }
 
 
     public void update(NodeHandle nodeHandle, boolean joined) {
         if (joined) {
-            System.out.println("Update :" + nodeHandle.getId() + "  joined the ring");
+            log.info("Update :" + nodeHandle.getId() + "  joined the ring");
         }
 
         if (!joined) {
-            System.out.println("Update :" + nodeHandle.getId() + "  left the ring");
+            log.info("Update :" + nodeHandle.getId() + "  left the ring");
         }
     }
 
 
     public void sendMessage(Id id, Message msg) {
 
-        System.out.println("Sending the message to :" + id);
+        log.debug("Sending the message to :" + id);
         getEndpoint().route(id, msg, null);
     }
 
     public void sendMyMsgDirect(NodeHandle nh, Message msg) {
 
-        System.out.println(this + " sending direct to " + nh);
+        log.debug(this + " sending direct to " + nh);
 
         getEndpoint().route(null, msg, nh);
     }

@@ -41,13 +41,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-/**
- * Created by IntelliJ IDEA.
- * User: shelan
- * Date: 6 Aug, 2010
- * Time: 6:37:55 PM
- * To change this template use File | Settings | File Templates.
- */
 public class RegistryApp {
 
     private Past pastApp;
@@ -89,16 +82,14 @@ public class RegistryApp {
 
         if (bindPort == null) {
 
-
             bindport = nodeUtils.createRandomPort();
 
-            System.out.println("goint to initilize rege2");
         } else {
             bindport = Integer.parseInt(bindPort);
         }
 
 
-        System.out.println(" generated random port no :" + bindport);
+        log.debug("generated random port no for the Registry application :" + bindport);
 
 
         InetSocketAddress bootaddress = nodeUtils.getBootAddress(bootIp, Integer.parseInt(bootPort));
@@ -165,7 +156,7 @@ public class RegistryApp {
 
     }
 
-
+    //TODO need to handle duplicate inserts
     public void insertIntoRegistry(String operation, Id serverId) {
 
         final RegistryContent myContent = new RegistryContent(idf.buildId(operation), serverId);
@@ -180,13 +171,13 @@ public class RegistryApp {
                     if (results[ctr].booleanValue())
                         numSuccessfulStores++;
                 }
-                System.out.println(myContent + " successfully stored at " + +
+                log.debug(myContent + " successfully stored at " + +
                         numSuccessfulStores + " locations.");
             }
 
             public void receiveException(Exception result) {
-                System.out.println("Error storing " + myContent);
-                result.printStackTrace();
+                log.debug("Error storing " + myContent);
+                //result.printStackTrace();
             }
         });
     }
@@ -206,7 +197,7 @@ public class RegistryApp {
         pastApp.lookup(lookupKey, new Continuation<PastContent, Exception>() {
 
             public void receiveResult(PastContent result) {
-                System.out.println("Successfully looked up Successfully looked up" + result + " for key " + lookupKey + ".");
+                log.debug("Successfully looked up Successfully looked up" + result + " for key " + lookupKey + ".");
 
                 resultContent[0] = result;
 
@@ -214,7 +205,7 @@ public class RegistryApp {
             }
 
             public void receiveException(Exception result) {
-                System.out.println("Error looking up " + lookupKey);
+                log.error("Error looking up " + lookupKey);
                 result.printStackTrace();
 
                 blockFlag.unblock();
@@ -270,7 +261,7 @@ public class RegistryApp {
 
     public void cleanupRegistry() {
 
-        if(env != null){
+        if (env != null) {
             env.destroy();
         }
 
@@ -278,7 +269,7 @@ public class RegistryApp {
 
             if (deleteDirectory(new File(baseDir))) {
 
-                log.debug("cleaned up registry file :"+storageFile);
+                log.debug("cleaned up registry file :" + storageFile);
             }
         }
 
@@ -297,8 +288,6 @@ public class RegistryApp {
         }
         return (path.delete());
     }
-
-
 
 
 }

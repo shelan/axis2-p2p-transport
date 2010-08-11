@@ -27,7 +27,7 @@ import java.util.Vector;
 public class RegistryContent extends ContentHashPastContent {
 
     final Vector<Id> idVector = new Vector<Id>();
-    ;
+
 
     public RegistryContent(Id myId, Id serverId) {
         super(myId);

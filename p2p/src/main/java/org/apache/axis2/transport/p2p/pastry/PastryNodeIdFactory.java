@@ -27,6 +27,12 @@ import java.security.NoSuchAlgorithmException;
  * under the License.
  */
 
+/**
+ * this classed is being used to test the initial implementaion.
+ * Unlike the IpNodeIdFactroy this generates the same ID for a given IP and Port.
+ * Used before the registry implementation to identify the ID of the AXIS2 sever to send the messages.
+ *
+ */
 public class PastryNodeIdFactory extends IPNodeIdFactory {
     /**
      * Constructor
