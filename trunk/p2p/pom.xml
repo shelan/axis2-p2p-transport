@@ -16,7 +16,6 @@
 
 
     <build>
-        <sourceDirectory>src/main</sourceDirectory>
         <testSourceDirectory>src/test</testSourceDirectory>
         <plugins>
             <plugin>
