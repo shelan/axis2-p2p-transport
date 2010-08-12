@@ -135,7 +135,7 @@ public class P2pManager {
             Parameter insertEnabled = transportDesciption.getParameter(P2pConstants.REGISTRY_INSERT_ENABLED);
 
             // Insert only if it is a server App
-            if (insertEnabled == null || (insertEnabled.getValue()).equals("true")) {
+            if (insertEnabled != null && (insertEnabled.getValue()).equals("true")) {
 
                 final Id serverId = app.getEndpoint().getId();
 

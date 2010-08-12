@@ -3,6 +3,7 @@ package org.apache.axis2.transport.p2p;
 import org.apache.axis2.Constants;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.MessageContext;
+import org.apache.axis2.description.TransportOutDescription;
 import org.apache.axis2.engine.AxisEngine;
 import org.apache.axis2.transport.p2p.pastry.PastryMsg;
 import org.apache.commons.logging.Log;
@@ -50,12 +51,16 @@ public class P2pReceiveWorker implements Runnable {
             msgContext.setServerSide(true);
             msgContext.setConfigurationContext(cfgCtx);
 
+            TransportOutDescription out = cfgCtx.getAxisConfiguration().getTransportOut(P2pConstants.TRANSPORT_P2P);
+            msgContext.setTransportOut(out);
+
             System.out.println("Message received from:" + msg.getSender());
             log.debug("Message received from:" + msg.getSender());
 
             P2pOutTransportInfo outInfo = new P2pOutTransportInfo();
             outInfo.setReciever(msg.getSender());
             outInfo.setContentType(P2pConstants.P2P_DEFAULT_CONTENT_TYPE);
+
 
             msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, outInfo);
             msgContext.setEnvelope(msg.getEnvelope());

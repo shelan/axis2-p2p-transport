@@ -150,7 +150,8 @@
     <transportReceiver name="p2p" class="org.apache.axis2.transport.p2p.P2pListner">
   <parameter name="transport.p2p.bootip" >127.0.0.1</parameter>
  <parameter name="transport.p2p.bootport">10000</parameter>
-        <parameter name="transport.p2p.bindport">10000</parameter>
+  <parameter name="transport.p2p.bindport">10000</parameter>
+   <parameter name="transport.p2p.registry.insert">true</parameter>
  
 </transportReceiver>
 

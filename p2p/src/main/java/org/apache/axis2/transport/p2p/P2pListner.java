@@ -26,7 +26,7 @@ import org.apache.axis2.transport.base.AbstractTransportListener;
 */
 public class P2pListner extends AbstractTransportListener {
 
-    private P2pManager p2pmanger;
+    private P2pManager manager;
 
 
     @Override
@@ -38,7 +38,7 @@ public class P2pListner extends AbstractTransportListener {
 
             if (started == null || started.equals("started")) {
 
-                P2pManager manager = new P2pManager();
+                 manager = new P2pManager();
                 manager.initAxis2ServerNode(transportIn, cfgCtx);
             }
         }
@@ -56,5 +56,13 @@ public class P2pListner extends AbstractTransportListener {
     @Override
     protected void stopListeningForService(AxisService axisService) {
 
+    }
+
+    @Override
+    public void stop() throws AxisFault {
+        super.stop();
+        if (manager != null) {
+            manager.stopPastryNode();
+        }
     }
 }
