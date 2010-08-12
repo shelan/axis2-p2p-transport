@@ -40,11 +40,6 @@ public class PastryApp implements Application {
     // pastry endpoint
     private Endpoint endpoint;
 
-    // transport endpoint
-    private P2pEndpoint p2pEndpoint;
-
-    private WorkerPool workerPool;
-
     private boolean isClient = false;
 
     private ConfigurationContext configCtx;
@@ -55,14 +50,11 @@ public class PastryApp implements Application {
     private static final Log log = LogFactory.getLog(PastryApp.class);
 
 
-    public PastryApp(Node node, P2pEndpoint p2pEndpoint, WorkerPool workerpool) {
+    public PastryApp(Node node,ConfigurationContext cfgCtx) {
         // We are only going to use one instance of this application on each PastryNode
         this.endpoint = node.buildEndpoint(this, "axis2App");
-        this.p2pEndpoint = p2pEndpoint;
-        this.workerPool = workerpool;
         this.getEndpoint().setDeserializer(new MessageDeserailizer());
-        this.configCtx = p2pEndpoint.getListener().getConfigurationContext();
-
+        this.configCtx = cfgCtx;
 
         // the rest of the initialization code could go here
 
@@ -70,22 +62,6 @@ public class PastryApp implements Application {
         this.getEndpoint().register();
     }
 
-    /**
-     * this constructor will be used by the client
-     *
-     * @param node   node of the app
-     * @param cfgCtx configuration context
-     */
-    public PastryApp(Node node, ConfigurationContext cfgCtx) {
-        this.endpoint = node.buildEndpoint(this, "axis2App");
-        this.getEndpoint().setDeserializer(new MessageDeserailizer());
-
-        // : anyone using this constructor will be treated as a client so message will not be processed
-        this.isClient = true;
-        this.getEndpoint().register();
-        this.configCtx = cfgCtx;
-
-    }
 
 
     public boolean forward(RouteMessage routeMessage) {
@@ -101,58 +77,58 @@ public class PastryApp implements Application {
 
     public void deliver(Id id, Message message) {
 
-
-        PastryMsg msg = (PastryMsg) message;
-
         testCtr++;
 
-        log.debug("No of messages recived in the application" + endpoint.getId() + " : " + testCtr + "\n");
+              log.debug("No of messages recived in the application" + endpoint.getId() + " : " + testCtr + "\n");
 
-        // if this application is at Axis2 server side processing will be handed over to the server
-        if (!isClient) {
 
-            log.debug("processing add to server worker pool");
+              PastryMsg msg = (PastryMsg) message;
 
-            workerPool.execute(new P2pReceiveWorker(p2pEndpoint, msg));
+              Iterator relatesToItr = msg.getEnvelope().getHeader().getChildrenWithLocalName("RelatesTo");
 
-        } else {
 
-            try {
-                MessageContext msgContext = configCtx.createMessageContext();
-                msgContext.setEnvelope(msg.getEnvelope());
+              if (relatesToItr != null && configCtx.getProperty(BaseConstants.CALLBACK_TABLE) != null) {
+                  try {
+                      MessageContext msgContext = configCtx.createMessageContext();
+                      msgContext.setEnvelope(msg.getEnvelope());
 
-                Map map = (Map) configCtx.getProperty(BaseConstants.CALLBACK_TABLE);
+                      Map map = (Map) configCtx.getProperty(BaseConstants.CALLBACK_TABLE);
 
-                Iterator iterator = msg.getEnvelope().getHeader().getChildrenWithLocalName("RelatesTo");
+                      String messageId = null;
 
-                String messageId = null;
+                      while (relatesToItr.hasNext()) {
+                          SOAPHeaderBlock blk = (SOAPHeaderBlock) relatesToItr.next();
+                          messageId = blk.getText();
+                      }
 
-                while (iterator.hasNext()) {
-                    SOAPHeaderBlock blk = (SOAPHeaderBlock) iterator.next();
-                    messageId = blk.getText();
-                }
+                      if (map != null && messageId != null && map.get(messageId) != null) {
 
-                if (map != null && messageId != null && map.get(messageId) != null) {
+                          P2pSynchronousCallback callback = (P2pSynchronousCallback) map.get(messageId);
 
-                    P2pSynchronousCallback callback = (P2pSynchronousCallback) map.get(messageId);
+                          callback.setInMessageContext(msgContext);
 
-                    callback.setInMessageContext(msgContext);
+                          map.remove(messageId);
+                      }
+                      /**
+                      else {
+                          AxisEngine.receive(msgContext);
+                      }   **/
 
-                    map.remove(messageId);
-                }
+                  } catch (AxisFault axisFault) {
 
-                /** check how the incoming is handled at the client side   and remove this code.Is below part needed ?
-                 else{
-                 AxisEngine.receive(msgContext);
-                 }
-                 **/
-            } catch (AxisFault axisFault) {
+                      axisFault.printStackTrace();
+                  }
 
-                axisFault.printStackTrace();
             }
+           // processing will be handed over to the server
+              else {
 
+                  log.debug("processing added to server worker pool");
 
-        }
+                  configCtx.getThreadPool().execute(new P2pReceiveWorker(configCtx, msg));
+
+              }
+
 
     }
 

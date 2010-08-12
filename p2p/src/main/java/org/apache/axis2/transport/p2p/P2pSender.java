@@ -6,6 +6,7 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.description.OutInAxisOperation;
+import org.apache.axis2.description.TransportOutDescription;
 import org.apache.axis2.transport.OutTransportInfo;
 import org.apache.axis2.transport.base.AbstractTransportSender;
 import org.apache.axis2.transport.base.BaseConstants;
@@ -59,6 +60,39 @@ public class P2pSender extends AbstractTransportSender {
     private RegistryApp registryApp;
 
 
+    /**
+     * Initialize the generic transport sender.
+     *
+     * @param cfgCtx       the axis configuration context
+     * @param transportOut the transport-out description
+     * @throws org.apache.axis2.AxisFault on error
+     */
+    @Override
+    public void init(ConfigurationContext cfgCtx, TransportOutDescription transportOut) throws AxisFault {
+        super.init(cfgCtx, transportOut);
+        this.configCtx = cfgCtx;
+
+        // set the synchronise callback table
+        if (configCtx.getProperty(BaseConstants.CALLBACK_TABLE) == null) {
+            configCtx.setProperty(BaseConstants.CALLBACK_TABLE, new ConcurrentHashMap());
+        }
+
+        try {
+
+            String started = (String) cfgCtx.getProperty(P2pConstants.PASTRY_NODE_STARTED);
+
+            if (started == null || started.equals("started")) {
+
+                P2pManager manager = new P2pManager();
+                manager.initAxis2ServerNode(transportOut, cfgCtx);
+            }
+        }
+        catch (Exception e) {
+            log.error("Error while starting pastry node at the sender", e);
+        }
+
+    }
+
     @Override
     public void sendMessage(MessageContext messageContext, String targetEpr, OutTransportInfo outTransportInfo) throws AxisFault {
 
@@ -66,14 +100,9 @@ public class P2pSender extends AbstractTransportSender {
 
         // if client invokes the inflow
         if (targetEpr != null) {
-            // this is the initialization code for a sender
-            if (!isInitialized()) {
-
-                this.initialize(messageContext);
-            }
 
             if (app == null) {
-                app = (PastryApp) configCtx.getProperty(P2pConstants.PASTRY_SENDER_APP);
+                app = (PastryApp) configCtx.getProperty(P2pConstants.PASTRY_APP);
             }
 
             String key = getServiceName(targetEpr) + ":" + getOperationFromSOAPHeader(soapEnv);
@@ -88,6 +117,10 @@ public class P2pSender extends AbstractTransportSender {
                 availableServer = registryApp.lookupRegistry(key);
             } catch (InterruptedException e) {
                 handleException("Error in Service registry look up");
+            }
+
+            if(availableServer == null){
+                log.error("No Server available with the Operation  "+key);
             }
 
             PastryMsg msg = new PastryMsg(soapEnv, app.getEndpoint().getId());
@@ -111,7 +144,7 @@ public class P2pSender extends AbstractTransportSender {
 
             ConfigurationContext configCtx = messageContext.getConfigurationContext();
 
-            PastryApp app = (PastryApp) configCtx.getProperty(P2pConstants.PASTRY_SERVER_APP);
+            PastryApp app = (PastryApp) configCtx.getProperty(P2pConstants.PASTRY_APP);
 
             PastryMsg msg = new PastryMsg(messageContext.getEnvelope());
 
@@ -163,33 +196,8 @@ public class P2pSender extends AbstractTransportSender {
      * this method will be used to connect the sender to the pastry ring and initialize.
      * this method will be called only from a client.
      */
-    private void initialize(MessageContext messageContext) {
 
-        try {
-
-            log.info("starting pastry app at client side in transport sender");
-
-            this.configCtx = messageContext.getConfigurationContext();
-
-            // set the synchronise callback table
-            if (configCtx.getProperty(BaseConstants.CALLBACK_TABLE) == null) {
-                configCtx.setProperty(BaseConstants.CALLBACK_TABLE, new ConcurrentHashMap());
-            }
-
-            P2pManager manager = new P2pManager();
-
-            manager.initSenderNode(configCtx);
-
-            this.env = (Environment) configCtx.getProperty(P2pConstants.PASTRY_ENVIRONMENT);
-
-
-            setInitialized(true);
-
-
-        } catch (Exception e) {
-            log.error("Error while starting pastry node at the sender", e);
-        }
-    }
+    
 
 
     @Override
@@ -214,7 +222,7 @@ public class P2pSender extends AbstractTransportSender {
         while (iterator.hasNext()) {
 
             SOAPHeaderBlock blk = (SOAPHeaderBlock) iterator.next();
-            
+
             operation = blk.getText();
         }
 

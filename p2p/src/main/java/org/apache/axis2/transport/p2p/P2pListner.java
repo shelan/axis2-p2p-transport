@@ -1,7 +1,10 @@
 package org.apache.axis2.transport.p2p;
 
 import org.apache.axis2.AxisFault;
-import org.apache.axis2.transport.base.AbstractTransportListenerEx;
+import org.apache.axis2.context.ConfigurationContext;
+import org.apache.axis2.description.AxisService;
+import org.apache.axis2.description.TransportInDescription;
+import org.apache.axis2.transport.base.AbstractTransportListener;
 
 /*
 * Licensed to the Apache Software Foundation (ASF) under one
@@ -21,37 +24,37 @@ import org.apache.axis2.transport.base.AbstractTransportListenerEx;
 * specific language governing permissions and limitations
 * under the License.
 */
-public class P2pListner extends AbstractTransportListenerEx<P2pEndpoint> {
+public class P2pListner extends AbstractTransportListener {
 
     private P2pManager p2pmanger;
 
-    protected void doInit() throws AxisFault {
-
-    }
 
     @Override
-    protected P2pEndpoint createEndpoint() {
-        return new P2pEndpoint();  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    protected void startEndpoint(P2pEndpoint protocolEndpoint) throws AxisFault {
-        this.p2pmanger = new P2pManager();
+    public void init(ConfigurationContext cfgCtx, TransportInDescription transportIn) throws AxisFault {
+        super.init(cfgCtx, transportIn);
         try {
-            p2pmanger.initAxis2ServerNode(protocolEndpoint, workerPool);
-        } catch (Exception e) {
-            handleException("Error while starting the P2P endpoint", e);
+
+            String started = (String) cfgCtx.getProperty(P2pConstants.PASTRY_NODE_STARTED);
+
+            if (started == null || started.equals("started")) {
+
+                P2pManager manager = new P2pManager();
+                manager.initAxis2ServerNode(transportIn, cfgCtx);
+            }
         }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
-    protected void stopEndpoint(P2pEndpoint protocolEndpoint) {
-        if (p2pmanger != null)
-            try {
-                p2pmanger.stopPastryNode();
-            } catch (Exception e) {
+    protected void startListeningForService(AxisService axisService) throws AxisFault {
 
-                log.error("Error while stopping the P2P endpoint", e);
-            }
+    }
+
+    @Override
+    protected void stopListeningForService(AxisService axisService) {
+
     }
 }
