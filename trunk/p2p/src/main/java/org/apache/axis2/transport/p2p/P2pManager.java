@@ -1,10 +1,7 @@
 package org.apache.axis2.transport.p2p;
 
 import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.description.AxisOperation;
-import org.apache.axis2.description.AxisService;
-import org.apache.axis2.description.TransportInDescription;
-import org.apache.axis2.transport.base.threads.WorkerPool;
+import org.apache.axis2.description.*;
 import org.apache.axis2.transport.p2p.pastry.PastryApp;
 import org.apache.axis2.transport.p2p.pastry.PastryNodeUtils;
 import org.apache.axis2.transport.p2p.registry.RegistryApp;
@@ -52,27 +49,42 @@ public class P2pManager {
     private RegistryApp registryApp;
 
 
-    public synchronized void initAxis2ServerNode(P2pEndpoint endpoint, WorkerPool workerpool) throws IOException,
-            InterruptedException {
+    public synchronized void initAxis2ServerNode
+            (ParameterInclude transportDesciption, ConfigurationContext cfgCtx)
+            throws IOException, InterruptedException {
 
         if (!isInitialized()) {
 
-            this.configurationContext = endpoint.getListener().getConfigurationContext();
+            this.configurationContext = cfgCtx;
 
             PastryNodeUtils nodeUtils = new PastryNodeUtils();
 
 
+            if (transportDesciption.getParameter(P2pConstants.BOOT_IP) == null &&
+                    transportDesciption.getParameter(P2pConstants.BOOT_PORT) == null) {
+
+                return;
+            }
+
+
             // getting pastry related information
-            String bootIp = endpoint.getBootIp();
+            String bootIp = (String) transportDesciption.getParameter(P2pConstants.BOOT_IP).getValue();
 
-            int bootPort = endpoint.getBootPort();
+            String bootport = (String) transportDesciption.getParameter(P2pConstants.BOOT_PORT).getValue();
 
-            int bindPort = endpoint.getBindPort();
+            Parameter bindport = transportDesciption.getParameter(P2pConstants.BIND_PORT);
 
-            if (bindPort == -1) {
+            int bindPort;
+
+            // no value is given
+            if (bindport == null) {
 
                 bindPort = nodeUtils.createRandomPort();
+            } else {
+                bindPort = Integer.parseInt((String) bindport.getValue());
             }
+
+            int bootPort = Integer.parseInt(bootport);
 
 
             InetSocketAddress bootaddress = nodeUtils.getBootAddress(bootIp, bootPort);
@@ -81,16 +93,12 @@ public class P2pManager {
             PastryNode node = nodeUtils.createNewNode(bootaddress, bindPort, null);
 
             // construct a new MyApp
-            PastryApp app = new PastryApp(node, endpoint, workerpool);
+            PastryApp app = new PastryApp(node, cfgCtx);
 
             node.boot(bootaddress);
 
-            endpoint.setNodeId(node.getNodeId());
-
             // to check if this is the bootstrap node
-            configurationContext.setProperty(P2pConstants.PASTRY_SERVER_APP, app);
-
-            configurationContext.setProperty(P2pConstants.PASTRY_NODE_STARTED, true);
+            cfgCtx.setProperty(P2pConstants.PASTRY_APP, app);
 
             // the node may require sending several messages to fully boot into the ring
             synchronized (node) {
@@ -106,23 +114,38 @@ public class P2pManager {
                 }
             }
 
-
             this.env = nodeUtils.getEnv();
 
             log.info("Finished creating new node for AXIS2 server :" + node);
 
-
             // adding operations into the registry
 
-            registryApp = new RegistryApp(configurationContext, bootIp,
-                    Integer.toString(bootPort + 1), Integer.toString(bootPort + 1));
+            if (bootPort == bindPort) {
+
+                registryApp = new RegistryApp(bootIp,
+                        Integer.toString(bootPort + 1), Integer.toString(bootPort + 1));
+            } else {
+                registryApp = new RegistryApp(bootIp,
+                        Integer.toString(bootPort + 1), null);
+            }
+
+            configurationContext.setProperty(P2pConstants.PASTRY_REGISTRY_APP ,registryApp);
 
 
-            final Id serverId = app.getEndpoint().getId();
+            Parameter insertEnabled = transportDesciption.getParameter(P2pConstants.REGISTRY_INSERT_ENABLED);
 
-            insertMetaDataToRegistry(configurationContext, registryApp, serverId);
+            // Insert only if it is a server App
+            if (insertEnabled == null || (insertEnabled.getValue()).equals("true")) {
+
+                final Id serverId = app.getEndpoint().getId();
+
+                insertMetaDataToRegistry(configurationContext, registryApp, serverId);
+            }
+
 
             initialized = true;
+
+            cfgCtx.setProperty(P2pConstants.PASTRY_NODE_STARTED, "started");
 
             log.info("Application for the Axis2Server started " + app.getEndpoint().getId());
         }
@@ -144,7 +167,7 @@ public class P2pManager {
     }
 
     //this is to initialize the sender code
-
+    @Deprecated
     public void initSenderNode(ConfigurationContext cfgCtx) throws IOException, InterruptedException {
 
         PastryNodeUtils nodeUtils = new PastryNodeUtils();
@@ -209,7 +232,7 @@ public class P2pManager {
 
         log.debug("registry boot ip and port" + bootIp + ":" + regBootPort);
 
-        registryApp = new RegistryApp(cfgCtx, bootIp, regBootPort);
+        registryApp = new RegistryApp( bootIp, regBootPort ,null);
 
         cfgCtx.setProperty(P2pConstants.PASTRY_REGISTRY_APP, registryApp);
 

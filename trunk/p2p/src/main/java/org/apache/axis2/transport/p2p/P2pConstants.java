@@ -39,13 +39,13 @@ public class P2pConstants {
 
     public static final String PASTRY_ENVIRONMENT = "pastryEnviornment";
 
-    public static final String PASTRY_SERVER_APP = "pastryAxis2App";
+    public static final String PASTRY_APP = "pastryApp";
 
     public static final String PASTRY_SENDER_APP = "pastrySenderApp";
 
      public static final String PASTRY_REGISTRY_APP = "pastryRegistryApp";
 
-
+     public static final String REGISTRY_INSERT_ENABLED = "transport.p2p.registry.insert";
 }
 
 

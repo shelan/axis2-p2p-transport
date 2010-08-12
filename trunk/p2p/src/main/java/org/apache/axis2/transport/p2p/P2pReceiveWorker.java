@@ -1,6 +1,7 @@
 package org.apache.axis2.transport.p2p;
 
 import org.apache.axis2.Constants;
+import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.engine.AxisEngine;
 import org.apache.axis2.transport.p2p.pastry.PastryMsg;
@@ -29,32 +30,32 @@ import org.apache.commons.logging.LogFactory;
 public class P2pReceiveWorker implements Runnable {
 
     private PastryMsg msg;
-    private P2pEndpoint endpoint;
+    private ConfigurationContext cfgCtx;
     private MessageContext msgContext = null;
 
     private static final Log log = LogFactory.getLog(P2pManager.class);
 
-    public P2pReceiveWorker(P2pEndpoint endpoint, PastryMsg msg) {
+    public P2pReceiveWorker(ConfigurationContext cfgCtx, PastryMsg msg) {
 
         this.msg = msg;
-        this.endpoint = endpoint;
+        this.cfgCtx = cfgCtx;
     }
 
     public void run() {
 
         try {
 
-            msgContext = endpoint.createMessageContext();
+            msgContext = cfgCtx.createMessageContext();
             msgContext.setIncomingTransportName(P2pConstants.TRANSPORT_P2P);
             msgContext.setServerSide(true);
-            msgContext.setConfigurationContext(endpoint.getListener().getConfigurationContext());
+            msgContext.setConfigurationContext(cfgCtx);
 
             System.out.println("Message received from:" + msg.getSender());
             log.debug("Message received from:" + msg.getSender());
 
             P2pOutTransportInfo outInfo = new P2pOutTransportInfo();
             outInfo.setReciever(msg.getSender());
-            outInfo.setContentType(endpoint.getContentType());
+            outInfo.setContentType(P2pConstants.P2P_DEFAULT_CONTENT_TYPE);
 
             msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, outInfo);
             msgContext.setEnvelope(msg.getEnvelope());

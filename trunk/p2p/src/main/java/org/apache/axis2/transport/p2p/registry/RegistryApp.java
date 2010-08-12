@@ -19,7 +19,6 @@
 
 package org.apache.axis2.transport.p2p.registry;
 
-import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.transport.p2p.pastry.PastryNodeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -58,21 +57,13 @@ public class RegistryApp {
     private static final Log log = LogFactory.getLog(RegistryApp.class);
 
 
-    public RegistryApp(ConfigurationContext cfgContext, String bootIp, String bootPort) throws IOException, InterruptedException {
+    public RegistryApp( String bootIp, String bootPort, String bindPort) throws IOException, InterruptedException {
 
-
-        this.initialize(cfgContext, bootIp, bootPort, null);
-
-
-    }
-
-    public RegistryApp(ConfigurationContext cfgContext, String bootIp, String bootPort, String bindPort) throws IOException, InterruptedException {
-
-        this.initialize(cfgContext, bootIp, bootPort, bindPort);
+        this.initialize( bootIp, bootPort, bindPort);
     }
 
 
-    private void initialize(ConfigurationContext cfgCtx, String bootIp, String bootPort, String bindPort) throws IOException, InterruptedException {
+    private void initialize( String bootIp, String bootPort, String bindPort) throws IOException, InterruptedException {
 
 
         PastryNodeUtils nodeUtils = new PastryNodeUtils();
@@ -218,8 +209,13 @@ public class RegistryApp {
 
             env.getTimeSource().sleep(200);
         }
-
+           if(resultContent.length>0){
         return ((RegistryContent) resultContent[0]).getFirstServerId();
+           }
+        else{
+               return null;
+           }
+
     }
 
     public boolean isInitialized() {
