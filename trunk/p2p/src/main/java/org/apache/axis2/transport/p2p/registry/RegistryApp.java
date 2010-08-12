@@ -80,7 +80,7 @@ public class RegistryApp {
         }
 
 
-        log.debug("generated random port no for the Registry application :" + bindport);
+        System.out.println("generated random port no for the Registry application :" + bindport);
 
 
         InetSocketAddress bootaddress = nodeUtils.getBootAddress(bootIp, Integer.parseInt(bootPort));
@@ -152,7 +152,7 @@ public class RegistryApp {
 
         final RegistryContent myContent = new RegistryContent(idf.buildId(operation), serverId);
 
-       log.debug(" storing key for" + operation + "  :" + myContent.getId());
+        System.out.println(" storing key for" + operation + "  :" + myContent.getId());
 
         pastApp.insert(myContent, new Continuation<Boolean[], Exception>() {
             // the result is an Array of Booleans for each insert
@@ -188,7 +188,7 @@ public class RegistryApp {
         pastApp.lookup(lookupKey, new Continuation<PastContent, Exception>() {
 
             public void receiveResult(PastContent result) {
-                log.debug("Successfully looked up Successfully looked up" + result + " for key " + lookupKey + ".");
+                System.out.println("Successfully looked up Successfully looked up" + result + " for key " + lookupKey + ".");
 
                 resultContent[0] = result;
 

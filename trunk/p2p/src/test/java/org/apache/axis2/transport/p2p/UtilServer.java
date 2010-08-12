@@ -23,9 +23,8 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
-import org.apache.axis2.description.AxisService;
+import org.apache.axis2.engine.ListenerManager;
 
-import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.IOException;
 
@@ -39,9 +38,9 @@ import java.io.IOException;
 public class UtilServer {
 
 
-    private static P2pListner receiver;
-
     private static int ctr=0;
+
+    private static ListenerManager lmanager;
 
 
     public static void startServer() throws Exception {
@@ -56,16 +55,17 @@ public class UtilServer {
                 throw new Exception("Repository directory does not exist");
 
             }
-        ConfigurationContext er =
+        ConfigurationContext confContext =
                 ConfigurationContextFactory.createConfigurationContextFromFileSystem(
                         file.getAbsolutePath() + "/repository",
                         file.getAbsolutePath() + "/conf/axis2.xml");
 
-            receiver = new P2pListner();
+            lmanager = new ListenerManager();
 
-            receiver.init(er, er.getAxisConfiguration().getTransportIn(P2pConstants.TRANSPORT_P2P));
+            lmanager.startSystem(confContext);
 
-            receiver.start();
+
+            System.out.println(" [Axis2] test Server started on port 2776 ");
 
     //        receiver.startEndpoint(receiver.createEndpoint());
 
@@ -79,9 +79,7 @@ public class UtilServer {
 
     public static void stop() throws AxisFault {
 
-        receiver.stop();
-        receiver.getConfigurationContext().terminate();
-
+        lmanager.getConfigctx().terminate();
         ctr = 0 ;
     }
 

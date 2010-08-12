@@ -79,16 +79,18 @@ public class PastryApp implements Application {
 
         testCtr++;
 
-              log.debug("No of messages recived in the application" + endpoint.getId() + " : " + testCtr + "\n");
-
+              System.out.println("No of messages recived in the application" + endpoint.getId() + " : " + testCtr + "\n");
 
               PastryMsg msg = (PastryMsg) message;
+
+              System.out.println("message recieved :"+msg.getEnvelope());
 
               Iterator relatesToItr = msg.getEnvelope().getHeader().getChildrenWithLocalName("RelatesTo");
 
 
-              if (relatesToItr != null && configCtx.getProperty(BaseConstants.CALLBACK_TABLE) != null) {
+             {
                   try {
+
                       MessageContext msgContext = configCtx.createMessageContext();
                       msgContext.setEnvelope(msg.getEnvelope());
 
@@ -109,10 +111,13 @@ public class PastryApp implements Application {
 
                           map.remove(messageId);
                       }
-                      /**
+
                       else {
-                          AxisEngine.receive(msgContext);
-                      }   **/
+
+                   System.out.println("processing added to server worker pool");
+
+                  configCtx.getThreadPool().execute(new P2pReceiveWorker(configCtx, msg));
+                      }   
 
                   } catch (AxisFault axisFault) {
 
@@ -120,14 +125,7 @@ public class PastryApp implements Application {
                   }
 
             }
-           // processing will be handed over to the server
-              else {
 
-                  log.debug("processing added to server worker pool");
-
-                  configCtx.getThreadPool().execute(new P2pReceiveWorker(configCtx, msg));
-
-              }
 
 
     }

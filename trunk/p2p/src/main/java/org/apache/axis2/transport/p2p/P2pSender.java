@@ -59,6 +59,8 @@ public class P2pSender extends AbstractTransportSender {
 
     private RegistryApp registryApp;
 
+    private P2pManager manager;
+
 
     /**
      * Initialize the generic transport sender.
@@ -83,7 +85,7 @@ public class P2pSender extends AbstractTransportSender {
 
             if (started == null || started.equals("started")) {
 
-                P2pManager manager = new P2pManager();
+                manager = new P2pManager();
                 manager.initAxis2ServerNode(transportOut, cfgCtx);
             }
         }
@@ -203,13 +205,9 @@ public class P2pSender extends AbstractTransportSender {
     @Override
     public void stop() {
 
-        if (env != null) {
-            env.destroy();
-        }
-
-        if (registryApp != null) {
-            registryApp.cleanupRegistry();
-        }
+       if(manager != null){
+           manager.stopPastryNode();
+       }
     }
 
 
