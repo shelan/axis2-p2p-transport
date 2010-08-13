@@ -166,7 +166,7 @@ public class P2pManager {
 
     }
 
-    //this is to initialize the sender code
+    //this is to initialize the sender code earlier
     @Deprecated
     public void initSenderNode(ConfigurationContext cfgCtx) throws IOException, InterruptedException {
 
@@ -254,7 +254,7 @@ public class P2pManager {
      * @param regApp
      * @param serverId
      */
-    private void insertMetaDataToRegistry(ConfigurationContext cfgCtx, RegistryApp regApp, Id serverId) {
+    private void insertMetaDataToRegistry(ConfigurationContext cfgCtx, RegistryApp regApp, Id serverId) throws InterruptedException {
 
         Collection<AxisService> e = cfgCtx.getAxisConfiguration().getServices().values();
 

@@ -57,13 +57,13 @@ public class RegistryApp {
     private static final Log log = LogFactory.getLog(RegistryApp.class);
 
 
-    public RegistryApp( String bootIp, String bootPort, String bindPort) throws IOException, InterruptedException {
+    public RegistryApp(String bootIp, String bootPort, String bindPort) throws IOException, InterruptedException {
 
-        this.initialize( bootIp, bootPort, bindPort);
+        this.initialize(bootIp, bootPort, bindPort);
     }
 
 
-    private void initialize( String bootIp, String bootPort, String bindPort) throws IOException, InterruptedException {
+    private void initialize(String bootIp, String bootPort, String bindPort) throws IOException, InterruptedException {
 
 
         PastryNodeUtils nodeUtils = new PastryNodeUtils();
@@ -80,7 +80,7 @@ public class RegistryApp {
         }
 
 
-        System.out.println("generated random port no for the Registry application :" + bindport);
+       log.debug("generated random port no for the Registry application :" + bindport);
 
 
         InetSocketAddress bootaddress = nodeUtils.getBootAddress(bootIp, Integer.parseInt(bootPort));
@@ -143,34 +143,41 @@ public class RegistryApp {
 
         this.setInitialized(true);
 
-        System.out.println("Finished creating new node for Registry " + node);
+        log.info("Finished creating new node for Registry " + node);
 
     }
 
     //TODO need to handle duplicate inserts
-    public void insertIntoRegistry(String operation, Id serverId) {
+    public void insertIntoRegistry(String operation, Id serverId) throws InterruptedException {
 
         final RegistryContent myContent = new RegistryContent(idf.buildId(operation), serverId);
 
-        System.out.println(" storing key for" + operation + "  :" + myContent.getId());
+        Id result = this.lookupRegistry(operation);
 
-        pastApp.insert(myContent, new Continuation<Boolean[], Exception>() {
-            // the result is an Array of Booleans for each insert
-            public void receiveResult(Boolean[] results) {
-                int numSuccessfulStores = 0;
-                for (int ctr = 0; ctr < results.length; ctr++) {
-                    if (results[ctr].booleanValue())
-                        numSuccessfulStores++;
+        // we insert only if there is no entry for the key
+        if (result == null) {
+
+            log.debug(" storing key for" + operation + "  :" + myContent.getId());
+
+            pastApp.insert(myContent, new Continuation<Boolean[], Exception>() {
+                // the result is an Array of Booleans for each insert
+                public void receiveResult(Boolean[] results) {
+                    int numSuccessfulStores = 0;
+                    for (int ctr = 0; ctr < results.length; ctr++) {
+                        if (results[ctr].booleanValue())
+                            numSuccessfulStores++;
+                    }
+                    log.debug(myContent + " successfully stored at " + +
+                            numSuccessfulStores + " locations.");
                 }
-                log.debug(myContent + " successfully stored at " + +
-                        numSuccessfulStores + " locations.");
-            }
 
-            public void receiveException(Exception result) {
-                log.debug("Error storing " + myContent);
-                //result.printStackTrace();
-            }
-        });
+                public void receiveException(Exception result) {
+                    log.debug("Error storing " + myContent);
+                    //result.printStackTrace();
+                }
+            });
+
+        }
     }
 
 
@@ -184,11 +191,11 @@ public class RegistryApp {
 
         final BlockFlag blockFlag = new BlockFlag(true);
 
-
+        if(pastApp != null)  {
         pastApp.lookup(lookupKey, new Continuation<PastContent, Exception>() {
 
             public void receiveResult(PastContent result) {
-                System.out.println("Successfully looked up Successfully looked up" + result + " for key " + lookupKey + ".");
+               log.debug("Successfully looked up Successfully looked up" + result + " for key " + lookupKey + ".");
 
                 resultContent[0] = result;
 
@@ -203,18 +210,23 @@ public class RegistryApp {
 
 
             }
+
+
         });
+
+
 
         while (blockFlag.isBlocked()) {
 
             env.getTimeSource().sleep(200);
         }
-           if(resultContent.length>0){
-        return ((RegistryContent) resultContent[0]).getFirstServerId();
-           }
-        else{
-               return null;
-           }
+
+        }
+        if (resultContent != null && resultContent[0] != null) {
+            return ((RegistryContent) resultContent[0]).getFirstServerId();
+        } else {
+            return null;
+        }
 
     }
 
