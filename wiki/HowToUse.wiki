@@ -67,7 +67,7 @@ and then start the server.
 
 == Using client to invoke the web service ==
 
-You can use the client implementation of [http://axis2-p2p-transport.googlecode.com/files/axis2_client.zip SampleClient]
+You can use the client implementation of [http://axis2-p2p-transport.googlecode.com/files/axis2_service_client.zip SampleClient]
 
 You have to add the AXIS2_HOME/lib folder to class path (Which includes freepastry's and axis2-transport-base jars as well)
 
