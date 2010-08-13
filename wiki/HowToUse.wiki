@@ -13,17 +13,18 @@ bootIp = Boot ip of the boot strapping Server
 
 bootPort = boot port used in boot strapping server
 
-== for transport sender ==
+== for transport receiver ==
 
 {{{
 <transportReceiver name="p2p" class="org.apache.axis2.transport.p2p.P2pListner">
   <parameter name="transport.p2p.bootip" >127.0.0.1</parameter>
   <parameter name="transport.p2p.bootport">10000</parameter>
   <parameter name="transport.p2p.bindport">10000</parameter>
+ <parameter name="transport.p2p.registry.insert">true</parameter>
 </transportReceiver>
 }}}
 
-== for transport receiver ==
+== for transport sender ==
 
 {{{
 <transportSender name="p2p"
