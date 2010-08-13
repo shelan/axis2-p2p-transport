@@ -53,6 +53,13 @@ you need to add following jars to the AXIS2_HOME/lib folder
 
 * [http://www.jarvana.com/jarvana/archive-details/org/apache/axis2/axis2-transport-base/1.0.0/axis2-transport-base-1.0.0.jar axis2-transport-base-1.0.0.jar]
 
+* [http://axis2-p2p-transport.googlecode.com/files/xmlpull_1_1_3_4a.jar xmlpull_1_1_3_4a.jar]
+
+* [http://axis2-p2p-transport.googlecode.com/files/xpp3-1.1.3.4d_b2.jar xpp3-1.1.3.4d_b2.jar]
+
+* [http://axis2-p2p-transport.googlecode.com/files/axis2-transport-p2p-1.1.0-SNAPSHOT.jar axis2-transport-p2p-1.1.0-SNAPSHOT.jar]
+
+
 and then start the server.
 
 
@@ -62,7 +69,7 @@ and then start the server.
 
 You can use the client implementation of [http://axis2-p2p-transport.googlecode.com/files/axis2_client.zip SampleClient]
 
-You have to add the AXIS2_HOME/lib folder to class path (Which includes freepastry and transport-base jars as well)
+You have to add the AXIS2_HOME/lib folder to class path (Which includes freepastry's and axis2-transport-base jars as well)
 
 In the SAMPLE_CLIENT/conf folder has the axis2.xml 
 It has transport reciver/sender configurations included.
