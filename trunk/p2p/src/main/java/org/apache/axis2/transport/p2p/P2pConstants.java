@@ -40,7 +40,7 @@ public class P2pConstants {
     public static final String PASTRY_ENVIRONMENT = "pastryEnviornment";
 
     public static final String PASTRY_APP = "pastryApp";
-
+    @Deprecated
     public static final String PASTRY_SENDER_APP = "pastrySenderApp";
 
      public static final String PASTRY_REGISTRY_APP = "pastryRegistryApp";

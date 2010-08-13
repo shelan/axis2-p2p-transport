@@ -65,8 +65,6 @@ public class PastryNodeUtils {
 
         PastryNodeFactory factory;
 
-        System.out.println(bootaddress.getAddress().isLoopbackAddress());
-
         // construct the PastryNodeFactory, this is how we use rice.pastry.socket
         //check if this is a test for localhost or real deployment with realIP
         if (bootaddress.getAddress().isLoopbackAddress()) {

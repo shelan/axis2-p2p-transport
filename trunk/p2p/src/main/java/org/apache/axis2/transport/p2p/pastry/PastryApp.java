@@ -79,11 +79,11 @@ public class PastryApp implements Application {
 
         testCtr++;
 
-              System.out.println("No of messages recived in the application" + endpoint.getId() + " : " + testCtr + "\n");
+              log.debug("No of messages recived in the application" + endpoint.getId() + " : " + testCtr + "\n");
 
               PastryMsg msg = (PastryMsg) message;
 
-              System.out.println("message recieved :"+msg.getEnvelope());
+              log.debug("message recieved :"+msg.getEnvelope());
 
               Iterator relatesToItr = msg.getEnvelope().getHeader().getChildrenWithLocalName("RelatesTo");
 
@@ -114,14 +114,14 @@ public class PastryApp implements Application {
 
                       else {
 
-                   System.out.println("processing added to server worker pool");
+                   log.debug("processing added to server worker pool");
 
                   configCtx.getThreadPool().execute(new P2pReceiveWorker(configCtx, msg));
                       }   
 
                   } catch (AxisFault axisFault) {
 
-                      axisFault.printStackTrace();
+                      log.error("error in handling the incoming message at Pastry App " , axisFault);
                   }
 
             }

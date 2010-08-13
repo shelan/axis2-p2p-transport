@@ -54,7 +54,6 @@ public class P2pReceiveWorker implements Runnable {
             TransportOutDescription out = cfgCtx.getAxisConfiguration().getTransportOut(P2pConstants.TRANSPORT_P2P);
             msgContext.setTransportOut(out);
 
-            System.out.println("Message received from:" + msg.getSender());
             log.debug("Message received from:" + msg.getSender());
 
             P2pOutTransportInfo outInfo = new P2pOutTransportInfo();

@@ -116,13 +116,16 @@ public class P2pSender extends AbstractTransportSender {
             Id availableServer = null;
 
             try {
+                if(registryApp != null)
                 availableServer = registryApp.lookupRegistry(key);
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 handleException("Error in Service registry look up");
             }
 
-            if(availableServer == null){
-                log.error("No Server available with the Operation  "+key);
+            if (availableServer == null) {
+                log.error("No Server available with the Operation  " + key);
+                
+                return;
             }
 
             PastryMsg msg = new PastryMsg(soapEnv, app.getEndpoint().getId());
@@ -199,15 +202,13 @@ public class P2pSender extends AbstractTransportSender {
      * this method will be called only from a client.
      */
 
-    
-
 
     @Override
     public void stop() {
 
-       if(manager != null){
-           manager.stopPastryNode();
-       }
+        if (manager != null) {
+            manager.stopPastryNode();
+        }
     }
 
 
