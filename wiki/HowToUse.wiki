@@ -1,6 +1,6 @@
 #summary How to use this in Axis2 transport
 
-
+*First deploy the [http://axis2-p2p-transport.googlecode.com/files/SampleService.aar SampleService.aar] in the AXIS2 repository.
 
 == Configurations ==
 
