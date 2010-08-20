@@ -48,8 +48,6 @@ public class P2pSender extends AbstractTransportSender {
 
     private PastryApp app;
 
-    private int testNum = 0;
-
     private SOAPEnvelope soapEnv;
 
     private RegistryApp registryApp;
