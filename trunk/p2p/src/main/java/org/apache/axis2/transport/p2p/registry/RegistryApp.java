@@ -25,7 +25,6 @@ import org.apache.commons.logging.LogFactory;
 import rice.Continuation;
 import rice.environment.Environment;
 import rice.p2p.commonapi.Id;
-import rice.p2p.past.Past;
 import rice.p2p.past.PastContent;
 import rice.p2p.past.PastImpl;
 import rice.pastry.NodeIdFactory;
@@ -42,7 +41,7 @@ import java.net.InetSocketAddress;
 
 public class RegistryApp {
 
-    private Past pastApp;
+    private PastImpl pastApp;
 
     private PastryIdFactory idf;
 
@@ -120,7 +119,7 @@ public class RegistryApp {
         Storage store = new PersistentStorage(idf, storageDirectory, 4 * 1024 * 1024, node
                 .getEnvironment());
         //Storage store = new MemoryStorage(idf);
-        Past app = new PastImpl(node, new StorageManagerImpl(idf, store, new LRUCache(
+        PastImpl app = new PastImpl(node, new StorageManagerImpl(idf, store, new LRUCache(
                 new MemoryStorage(idf), 512 * 1024, node.getEnvironment())), 3, "");
 
         this.pastApp = app;

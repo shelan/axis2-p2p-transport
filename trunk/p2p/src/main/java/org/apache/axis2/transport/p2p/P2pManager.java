@@ -123,10 +123,10 @@ public class P2pManager {
             if (bootPort == bindPort) {
 
                 registryApp = new RegistryApp(bootIp,
-                        Integer.toString(bootPort + 1), Integer.toString(bootPort + 1));
+                        Integer.toString(bootPort+1), Integer.toString(bootPort+1));
             } else {
                 registryApp = new RegistryApp(bootIp,
-                        Integer.toString(bootPort + 1), null);
+                        Integer.toString(bootPort+1), null);
             }
 
             configurationContext.setProperty(P2pConstants.PASTRY_REGISTRY_APP ,registryApp);

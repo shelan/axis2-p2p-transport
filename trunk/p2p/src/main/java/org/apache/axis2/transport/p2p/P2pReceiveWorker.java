@@ -6,6 +6,7 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.description.TransportOutDescription;
 import org.apache.axis2.engine.AxisEngine;
 import org.apache.axis2.transport.p2p.pastry.PastryMsg;
+import org.apache.axis2.util.MessageContextBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -46,6 +47,7 @@ public class P2pReceiveWorker implements Runnable {
 
         try {
 
+
             msgContext = cfgCtx.createMessageContext();
             msgContext.setIncomingTransportName(P2pConstants.TRANSPORT_P2P);
             msgContext.setServerSide(true);
@@ -58,21 +60,43 @@ public class P2pReceiveWorker implements Runnable {
 
             P2pOutTransportInfo outInfo = new P2pOutTransportInfo();
             outInfo.setReciever(msg.getSender());
-            outInfo.setContentType(P2pConstants.P2P_DEFAULT_CONTENT_TYPE);
-
 
             msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, outInfo);
+
+            outInfo.setContentType(P2pConstants.P2P_DEFAULT_CONTENT_TYPE);
+
             msgContext.setEnvelope(msg.getEnvelope());
 
             AxisEngine.receive(msgContext);
 
 
         } catch (Exception e) {
-            log.error("Error while processing P2P request through the Axis2 engine", e);
+
+              sendFault(msgContext, e);
         }
 
 
     }
+
+    private void sendFault(MessageContext msgContext, Exception fault) {
+
+        log.error("Error while processing P2P request through the Axis2 engine", fault);
+
+        try {
+            if (msgContext != null && msgContext.isServerSide()) {
+
+                MessageContext faultContext =
+                        MessageContextBuilder.createFaultMessageContext(msgContext, fault);
+
+
+                 AxisEngine.sendFault(faultContext);
+            }
+        } catch (Exception e) {
+            log.error("Error while sending the fault response", e);
+        }
+    }
+
+
 
 
 }

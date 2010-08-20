@@ -32,6 +32,7 @@ public class P2pConstants {
 
     public static final String P2P_DEFAULT_CONTENT_TYPE = "text/xml";
 
+    public static final String P2P_SOAP_12_CONTENT_TYPE = "application/soap+xml";
 
     //pastry Related
 
