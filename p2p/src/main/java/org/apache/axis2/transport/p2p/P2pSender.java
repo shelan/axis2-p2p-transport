@@ -1,7 +1,6 @@
 package org.apache.axis2.transport.p2p;
 
 import org.apache.axiom.soap.SOAPEnvelope;
-import org.apache.axiom.soap.SOAPHeaderBlock;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.MessageContext;
@@ -15,10 +14,8 @@ import org.apache.axis2.transport.p2p.pastry.PastryMsg;
 import org.apache.axis2.transport.p2p.registry.RegistryApp;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import rice.environment.Environment;
 import rice.p2p.commonapi.Id;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -45,11 +42,9 @@ public class P2pSender extends AbstractTransportSender {
 
     protected Log log = LogFactory.getLog(this.getClass());
 
-    Environment env;
-
     private boolean initialized = false;
 
-    ConfigurationContext configCtx;
+    private ConfigurationContext configCtx;
 
     private PastryApp app;
 
@@ -107,24 +102,23 @@ public class P2pSender extends AbstractTransportSender {
                 app = (PastryApp) configCtx.getProperty(P2pConstants.PASTRY_APP);
             }
 
-            String key = getServiceName(targetEpr) + ":" + getOperationFromSOAPHeader(soapEnv);
+            String key = getServiceName(targetEpr) + ":" + getOperationFromMsgContext(messageContext);
 
 
             registryApp = (RegistryApp) configCtx.getProperty(P2pConstants.PASTRY_REGISTRY_APP);
 
-
             Id availableServer = null;
 
             try {
-                if(registryApp != null)
-                availableServer = registryApp.lookupRegistry(key);
+                if (registryApp != null)
+                    availableServer = registryApp.lookupRegistry(key);
             } catch (Exception e) {
                 handleException("Error in Service registry look up");
             }
 
             if (availableServer == null) {
                 log.error("No Server available with the Operation  " + key);
-                
+
                 return;
             }
 
@@ -142,7 +136,6 @@ public class P2pSender extends AbstractTransportSender {
             }
 
         }
-
 
         //if axis engine invokes the outflow
         else if (outTransportInfo != null && (outTransportInfo instanceof P2pOutTransportInfo)) {
@@ -212,27 +205,22 @@ public class P2pSender extends AbstractTransportSender {
     }
 
 
-    private String getOperationFromSOAPHeader(SOAPEnvelope envelope) {
-        Iterator iterator = envelope.getHeader().getChildrenWithLocalName("Action");
+    private String getOperationFromMsgContext(MessageContext msgCtx) {
 
-
-        String operation = null;
-
-        while (iterator.hasNext()) {
-
-            SOAPHeaderBlock blk = (SOAPHeaderBlock) iterator.next();
-
-            operation = blk.getText();
-        }
+        String operation = msgCtx.getWSAAction();
 
         String[] operationString = operation.split(":");
 
+        if (operationString != null && operationString.length > 1) {
+            return operationString[1];
 
-        if (operationString == null || operationString.length < 2) {
-            log.error("Cannot find the urn:Action in the SOAP request");
+        } else if (operationString != null && operationString.length > 0) {
+            return operationString[0];
+
+        } else {
+            log.error("Cannot get the operation from the message context");
+            return null;
         }
-
-        return operationString[1];
     }
 
 
