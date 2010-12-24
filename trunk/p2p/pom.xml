@@ -187,6 +187,19 @@
                 <!-- i.e. refresh weekly -->
             </snapshots>
         </repository>
+
+<repository>
+            <id>bissa-repo</id>
+            <name>Maven central Repository</name>
+            <url>http://repo2.maven.org</url>
+            <releases>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <updatePolicy>interval:10080</updatePolicy>
+                <!-- i.e. refresh weekly -->
+            </snapshots>
+        </repository>
     </repositories>
 
 </project>
