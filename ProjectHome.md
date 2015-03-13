@@ -1,0 +1,7 @@
+This project integrates free pastry with Apache Axis2 to add the peer to  peer capabilities at the transport level.
+
+Apache axis2 is a light -weight Web Services engine, which has been implemented in both Java and C .It provides a better SOAP processing model, with considerable increase in performance.Axis2 is independent of underlying transports which it uses to send and receive messages.Axis2 consumes the message context which is built using the underlying transports.
+
+Pastry is a generic, scalable and efficient substrate for peer-to-peer applications. Pastry nodes form a decentralized, self-organizing and fault-tolerant overlay network within the Internet. It also provides efficient request routing, deterministic object location, and load balancing in an application-independent manner. Furthermore, Pastry provides mechanisms that support and facilitate application-specific object replication, caching, and fault recovery
+
+By integrating free pastry in to the Apache axis2, we can inherit all the capabilities of free pastry's network overlay in order to obtain the above mentioned and provide a highly scalable transport structure which is reliable with fault tolerance and self managed.
